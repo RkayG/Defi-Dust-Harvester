@@ -1,33 +1,80 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
+const { networkConfigs } = require("../config.js");
+const { supportedTokens } = require("../supportedTokensBSC.js");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Get the network name from hardhat
+  const network = "bsc"
+  
+  // Get network specific configuration
+  const config = networkConfigs[network];
+  if (!config) {
+    throw new Error(`No configuration found for network: ${network}`);
+  }
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+  console.log("Deploying EVMDustHarvester to", network);
+  console.log("Using configuration:");
+  console.log("- DEX Aggregator:", config.aggregator);
+  console.log("- Wrapped Native:", config.wrappedNative);
+  console.log("- Min Dust Value:", config.minDustValue.toString());
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  // Get contract factory
+  const EVMDustHarvester = await ethers.getContractFactory("EVMDustHarvester");
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+  // Deploy contract
+  const harvester = await EVMDustHarvester.deploy(
+    config.aggregator,
+    config.wrappedNative,
+    config.minDustValue
   );
+
+  await harvester.deployed();
+  console.log("EVMDustHarvester deployed to:", harvester.address);
+
+  // Wait for a few blocks for better reliability
+  console.log("Waiting for deployment to settle...");
+  await ethers.provider.waitForTransaction(harvester.deployTransaction.hash, 5);
+
+  // Configure initial supported tokens
+  if (supportedTokens) {
+    console.log("Configuring initial supported tokens...");
+    
+    for (const token of supportedTokens) {
+      console.log(`Configuring token ${token}...`);
+      await harvester.configureToken(
+        token,
+        true,
+        18
+      );
+    }
+  }
+
+  console.log("\nDeployment completed!");
+  console.log("Contract address:", harvester.address);
+  
+  // Verify contract on Etherscan if API key is available
+  /* if (process.env.ETHERSCAN_API_KEY) {
+    console.log("\nVerifying contract on Etherscan...");
+    try {
+      await hre.run("verify:verify", {
+        address: harvester.address,
+        constructorArguments: [
+          config.aggregator,
+          config.wrappedNative,
+          config.minDustValue
+        ],
+      });
+      console.log("Contract verified successfully");
+    } catch (error) {
+      console.error("Error verifying contract:", error);
+    }
+  } */
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// Handle errors
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
