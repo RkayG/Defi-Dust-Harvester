@@ -102,7 +102,7 @@ contract EVMDustHarvester is Ownable(msg.sender), ReentrancyGuard {
         address[] calldata tokens,
         uint256[] calldata amounts,
         uint256 minReturn
-    ) external nonReentrant returns (uint256) {
+    ) external returns (uint256) {
         return harvestDust(tokens, amounts, wrappedNative, minReturn);
     }
 

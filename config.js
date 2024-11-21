@@ -1,3 +1,5 @@
+// config.js
+
 const { ethers } = require("ethers");
 
 const networkConfigs = {
