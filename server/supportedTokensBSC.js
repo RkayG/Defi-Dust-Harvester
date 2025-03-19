@@ -1,4 +1,13 @@
 const supportedTokens = [
+    // ========= test tokens ====================
+    '0x7a85f7Baa8E96aCfD2c2F1d91994a6E3454731b0',  
+    '0x27e5572b88Ad646F03b73c22a493FbE6E1ac6C9f', 
+    '0x372C154c85bC1eb86fb7b9A2867FA2E5C0231234',
+    '0x3d3AA16B118a9e805432C0C76Fa8b7FA77CA342e',
+    '0x7a734F8dA179715Deda4845c604c1D3790aF98F7',
+    '0x957659ae6D5c171558a3d70f265C200759a41268',
+    '0x79790B2020bd13712d78Eb9091eaB1AFF681F5A5',
+    // ==========================================
     "0x55d398326f99059ff775485246999027b3197955",  // Binance-Peg BSC-USD (BSC-USD)
     "0xe9e7cea3dedca5984780bafc599bd69add087d56",  // Binance-Peg BUSD Token (BUSD)
     "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",  // Wrapped BNB (WBNB)

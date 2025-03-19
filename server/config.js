@@ -1,6 +1,6 @@
 // config.js
 
-const { ethers } = require("ethers");
+const { ethers } = require('hardhat');
 
 const networkConfigs = {
   ethereum: {
